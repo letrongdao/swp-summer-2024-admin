@@ -4,18 +4,19 @@ import DataTable from "react-data-table-component";
 import NavigationPane from "./NavigationPane";
 import axios from "axios";
 import dateFormat from "@/assistants/date.format";
+import { Image, Tooltip } from "antd";
 
-export default function AccountListTable() {
+export default function TimepieceListTable() {
   const [isLoading, setIsLoading] = useState(false);
-  const [accountList, setAccountList] = useState([]);
+  const [timepieceList, setTimepieceList] = useState([]);
 
   const fetchAccountData = async () => {
     setIsLoading(true);
     axios
-      .get("http://localhost:3000/auth/accounts")
+      .get("http://localhost:3000/product")
       .then((res) => {
         console.log("Data: ", res.data);
-        setAccountList(res.data);
+        setTimepieceList(res.data);
       })
       .catch((err) => console.log(err));
     setIsLoading(false);
@@ -27,46 +28,64 @@ export default function AccountListTable() {
 
   const columns = [
     {
-      name: <p className="w-full text-center font-semibold text-tremor-default">No</p>,
-      selector: (row: any, index: any) => index + 1,
-      grow: 0,
+      name: (
+        <p className="w-full text-center font-semibold text-tremor-default">
+          Image
+        </p>
+      ),
+      selector: (row: any) => (
+        <Image src={row.image} alt={row.name} className="w-8" />
+      ),
+      sortable: true,
     },
     {
-      name: <p className="w-full text-center font-semibold text-tremor-default">Email</p>,
-      selector: (row: any) => row.email,
+      name: (
+        <p className="w-full text-center font-semibold text-tremor-default">
+          Name
+        </p>
+      ),
+      selector: (row: any) => <Tooltip title={row.name}>{row.name}</Tooltip>,
       sortable: true,
       grow: 2,
     },
     {
-      name: <p className="w-full text-center font-semibold text-tremor-default">Username</p>,
-      selector: (row: any) => row.username,
-      sortable: true,
-    },
-    {
-      name: <p className="w-full text-center font-semibold text-tremor-default">Role</p>,
-      selector: (row: any) => row.role,
+      name: (
+        <p className="w-full text-center font-semibold text-tremor-default min-w-fit">
+          Price ($)
+        </p>
+      ),
+      selector: (row: any) => row.price,
       sortable: true,
       grow: 0,
     },
     {
-      name: <p className="w-full text-center font-semibold text-tremor-default">Phone number</p>,
-      selector: (row: any) =>
-        [
-          row.phone.slice(0, 3),
-          " ",
-          row.phone.slice(3, 7),
-          " ",
-          row.phone.slice(7),
-        ].join(""),
+      name: (
+        <p className="w-full font-semibold text-center text-tremor-default">
+          Description
+        </p>
+      ),
+      selector: (row: any) => (
+        <button className="py-2 px-4 bg-cyan-600 hover:bg-cyan-800 rounded-full text-white">
+          View description
+        </button>
+      ),
       sortable: true,
     },
     {
-      name: <p className="w-full text-center font-semibold text-tremor-default">Created date</p>,
+      name: (
+        <p className="w-full text-center font-semibold text-tremor-default">
+          Created date
+        </p>
+      ),
       selector: (row: any) => dateFormat(row.createdAt, "dd/mm/yyyy"),
       sortable: true,
     },
     {
-      name: <p className="w-full text-center font-semibold text-tremor-default">Status</p>,
+      name: (
+        <p className="w-full text-center font-semibold text-tremor-default">
+          Status
+        </p>
+      ),
       selector: (row: any) => row.id,
       format: (row: any) =>
         row.id % 3 !== 0 ? (
@@ -78,7 +97,11 @@ export default function AccountListTable() {
       grow: 0,
     },
     {
-      name: <p className="w-full text-center font-semibold text-tremor-default">Actions</p>,
+      name: (
+        <p className="w-full text-center font-semibold text-tremor-default">
+          Actions
+        </p>
+      ),
       cell: (row: any) => (
         <div className="flex flex-row gap-4 items-center justify-center">
           <svg
@@ -110,8 +133,9 @@ export default function AccountListTable() {
       <NavigationPane />
       <div className="flex flex-col">
         <DataTable
-          columns={columns}
-          data={accountList}
+          responsive
+          columns={columns as any}
+          data={timepieceList}
           sortIcon={
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -143,6 +167,7 @@ export default function AccountListTable() {
           paginationComponentOptions={{
             noRowsPerPage: true,
           }}
+          fixedHeader={true}
         />
       </div>
     </>

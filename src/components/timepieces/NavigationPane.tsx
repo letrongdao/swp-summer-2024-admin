@@ -12,7 +12,7 @@ export default function NavigationPane() {
           >
             <path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path>
           </svg>
-          Create a new account
+          Add a timepiece
         </button>
       </div>
     </div>

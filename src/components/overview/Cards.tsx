@@ -1,30 +1,49 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card } from "@tremor/react";
+import axios from "axios";
 
 export default function Cards() {
+  const [totalAccount, setTotalAccount] = useState(0);
   const [isShowingMore, setIsShowingMore] = useState(false);
+
+  const getAccountData = async () => {
+    await axios
+      .get("http://localhost:3000/auth/accounts")
+      .then((res) => {
+        console.log(res.data);
+        setTotalAccount(res.data.length);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  useEffect(() => {
+    getAccountData();
+  }, []);
+
   const showStatistics = () => {
     setIsShowingMore(!isShowingMore);
   };
+
   return (
     <>
       <div className="flex flex-col justify-center items-center">
         <div className="flex flex-row items-center justify-center w-full">
           <Card
-            className="m-2 max-w-md inline-block"
+            className="m-2 max-w-md min-w-fit inline-block cursor-pointer"
             decoration="top"
             decorationColor="cyan"
+            onClick={() => getAccountData()}
           >
             <h4 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
               Total account
             </h4>
             <p className="text-tremor-metric font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
-              259
+              {totalAccount}
             </p>
           </Card>
           <Card
-            className="m-2 max-w-md !bg-lime-950 inline-block"
+            className="m-2 max-w-md min-w-fit !bg-lime-950 inline-block"
             decoration="top"
             decorationColor="green"
           >
@@ -36,19 +55,19 @@ export default function Cards() {
             </p>
           </Card>
           <Card
-            className="w-[50%] m-2 max-w-md inline-block !bg-purple-950"
+            className="w-[50%] m-2 max-w-md min-w-fit inline-block !bg-purple-950"
             decoration="top"
             decorationColor="indigo"
           >
-            <h4 className="text-tremor-default dark:text-dark-tremor-content">
-            Total remaining timepiece
+            <h4 className="min-w-fit text-tremor-default dark:text-dark-tremor-content">
+              Total remaining timepiece
             </h4>
             <p className="text-tremor-metric font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
               67
             </p>
           </Card>
           <Card
-            className="w-[50%] m-2 max-w-md inline-block !bg-rose-950"
+            className="w-[50%] m-2 max-w-md min-w-fit inline-block !bg-rose-950"
             decoration="top"
             decorationColor="orange"
           >
