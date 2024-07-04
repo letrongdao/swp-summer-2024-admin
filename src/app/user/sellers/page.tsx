@@ -1,5 +1,5 @@
 "use client";
-import AccountListTable from "@/components/accounts/AccountListTable";
+import SellerRequestListTable from "@/components/accounts/SellerRequestListTable";
 import Loading from "@/components/loading/Loading";
 import Navbar from "@/components/navbar/Navbar";
 import Sidebar from "@/components/sidebar/Sidebar";
@@ -7,23 +7,22 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 export default function page() {
+  const [sellerRequestList, setSellerRequestList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [accountList, setAccountList] = useState([]);
 
-  const fetchAccountData = async () => {
+  const getRequestListData = async () => {
     setIsLoading(true);
-    axios
-      .get("http://localhost:3000/auth/accounts")
+    await axios
+      .get("http://localhost:3000/sellerRequest")
       .then((res) => {
-        console.log("Data: ", res.data);
-        setAccountList(res.data);
+        setSellerRequestList(res.data);
         setIsLoading(false);
       })
       .catch((err) => console.log(err));
   };
 
   useEffect(() => {
-    fetchAccountData();
+    getRequestListData();
   }, []);
 
   if (isLoading) return <Loading />;
@@ -31,7 +30,12 @@ export default function page() {
     <div>
       <Navbar />
       <Sidebar />
-      <AccountListTable accountList={accountList} />
+      <SellerRequestListTable
+        list={sellerRequestList}
+        getUpdatedStatus={async (value: boolean) => {
+          if (value) await getRequestListData();
+        }}
+      />
     </div>
   );
 }

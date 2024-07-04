@@ -18,9 +18,11 @@ export default function AdminSignInForm({ modalOpen }: { modalOpen: boolean }) {
         email: email,
         password: password,
       })
-      .then((res) => {
-        const account = jwtDecode(res.data.metadata);
-        console.log("ACCOUNT: ", account);
+      .then(async (res) => {
+        const account = jwtDecode(res.data.metadata) as any;
+        await axios
+          .patch(`http://localhost:3000/auth/active_status/${account.id}`)
+          .catch((err) => console.log(err));
         setTimeout(() => {
           if ((account as any).role === "admin") {
             sessionStorage.setItem("adminSignIn", JSON.stringify(account));
@@ -65,6 +67,7 @@ export default function AdminSignInForm({ modalOpen }: { modalOpen: boolean }) {
       <Input
         size="large"
         placeholder="Email"
+        autoComplete="off"
         className="rounded-lg border-gray-300 mt-6"
         prefix={
           <svg
@@ -86,6 +89,7 @@ export default function AdminSignInForm({ modalOpen }: { modalOpen: boolean }) {
       <Input.Password
         size="large"
         placeholder="Password"
+        autoComplete="off"
         className="mt-2"
         prefix={
           <svg

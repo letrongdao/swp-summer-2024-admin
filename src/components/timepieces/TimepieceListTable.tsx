@@ -5,71 +5,102 @@ import NavigationPane from "./NavigationPane";
 import axios from "axios";
 import dateFormat from "@/assistants/date.format";
 import { Image, Tooltip } from "antd";
+import ProductInformation from "./ProductInformation";
+import CurrencySplitter from "@/assistants/currencySpliter";
 
-export default function TimepieceListTable() {
+export default function TimepieceListTable({
+  timepieceList,
+}: {
+  timepieceList: any;
+}) {
   const [isLoading, setIsLoading] = useState(false);
-  const [timepieceList, setTimepieceList] = useState([]);
-
-  const fetchAccountData = async () => {
-    setIsLoading(true);
-    axios
-      .get("http://localhost:3000/product")
-      .then((res) => {
-        console.log("Data: ", res.data);
-        setTimepieceList(res.data);
-      })
-      .catch((err) => console.log(err));
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    fetchAccountData();
-  }, []);
+  const [currentDescriptionOpen, setCurrentDescriptionOpen] = useState("");
 
   const columns = [
     {
-      name: (
-        <p className="w-full text-center font-semibold text-tremor-default">
-          Image
-        </p>
-      ),
       selector: (row: any) => (
-        <Image src={row.image} alt={row.name} className="w-8" />
+        <Image
+          src={
+            row.image
+              ? row.image
+              : "https://cdn.dribbble.com/users/55871/screenshots/2158022/media/8f2a4a2c9126a9f265fb9e1023b1698a.jpg?resize=400x0"
+          }
+          alt={row.name}
+          width={64}
+          className="mx-auto rounded-full py-2"
+          preview={{
+            maskClassName: "rounded-full my-2",
+          }}
+        />
       ),
-      sortable: true,
-    },
-    {
-      name: (
-        <p className="w-full text-center font-semibold text-tremor-default">
-          Name
-        </p>
-      ),
-      selector: (row: any) => <Tooltip title={row.name}>{row.name}</Tooltip>,
-      sortable: true,
-      grow: 2,
-    },
-    {
-      name: (
-        <p className="w-full text-center font-semibold text-tremor-default min-w-fit">
-          Price ($)
-        </p>
-      ),
-      selector: (row: any) => row.price,
-      sortable: true,
       grow: 0,
     },
     {
       name: (
-        <p className="w-full font-semibold text-center text-tremor-default">
-          Description
+        <p className="w-full text-center font-semibold text-tremor-default">
+          Product
         </p>
       ),
-      selector: (row: any) => (
-        <button className="py-2 px-4 bg-cyan-600 hover:bg-cyan-800 rounded-full text-white">
-          View description
-        </button>
+      cell: (row: any) => {
+        return (
+          <div className="w-full flex flex-col items-start justify-center gap-2">
+            <Tooltip
+              title={row.name}
+              className="font-semibold text-[1.1em] text-wrap"
+            >
+              {row.name}
+            </Tooltip>
+            <p className="text-[0.8em] text-gray-600">{row.brand}</p>
+          </div>
+        );
+      },
+      sortable: true,
+      sortFunction: (a: any, b: any) => {
+        return a.name.localeCompare(b.name);
+      },
+      grow: 2,
+    },
+    {
+      name: (
+        <p className="w-full text-center font-semibold text-tremor-default">
+          Price
+        </p>
+      ),
+      cell: (row: any) => (
+        <p className="font-semibold w-full text-center">
+          $ {CurrencySplitter(Math.round(row.price * 100) / 100)}
+        </p>
       ),
       sortable: true,
+      sortFunction: (a: any, b: any) => {
+        if (parseFloat(a.price) === parseFloat(b.price)) return 0;
+        else {
+          return parseFloat(a.price) > parseFloat(b.price) ? 1 : -1;
+        }
+      },
+      grow: 1,
+    },
+    {
+      name: (
+        <p className="w-full font-semibold text-center text-tremor-default">
+          Details
+        </p>
+      ),
+      cell: (row: any) => (
+        <div className="w-full flex items-center justify-center">
+          <button
+            onClick={() => setCurrentDescriptionOpen(row.id)}
+            className="py-2 px-4 font-semibold text-xs bg-cyan-600 hover:bg-cyan-800 rounded-full text-white"
+          >
+            View details
+          </button>
+          <ProductInformation
+            product={row}
+            open={currentDescriptionOpen === row.id}
+            setOpen={() => setCurrentDescriptionOpen("")}
+          />
+        </div>
+      ),
     },
     {
       name: (
@@ -77,7 +108,12 @@ export default function TimepieceListTable() {
           Created date
         </p>
       ),
-      selector: (row: any) => dateFormat(row.createdAt, "dd/mm/yyyy"),
+      selector: (row: any) => row.createdAt,
+      cell: (row: any) => (
+        <p className="w-full text-center">
+          {dateFormat(row.createdAt, "dd/mm/yyyy")}
+        </p>
+      ),
       sortable: true,
     },
     {
@@ -86,15 +122,42 @@ export default function TimepieceListTable() {
           Status
         </p>
       ),
-      selector: (row: any) => row.id,
-      format: (row: any) =>
-        row.id % 3 !== 0 ? (
-          <p className="font-bold text-green-500">ACTIVE</p>
-        ) : (
-          <p className="font-bold text-red-500">DISABLED</p>
-        ),
+      selector: (row: any) => row.status,
+      cell: (row: any) => {
+        if (row.status === "IN APPRAISAL") {
+          return (
+            <p className="w-full text-center text-sm font-semibold text-amber-600">
+              IN APPRAISAL
+            </p>
+          );
+        } else if (row.status === "AVAILABLE") {
+          return (
+            <p className="w-full text-center text-sm font-semibold text-green-600">
+              AVAILABLE
+            </p>
+          );
+        } else if (row.status === "UPDATE_REQUESTED") {
+          return (
+            <p className="w-full text-center text-sm font-semibold text-sky-600">
+              UPDATING
+            </p>
+          );
+        } else if (row.status === "SOLD") {
+          return (
+            <p className="w-full text-center text-sm font-semibold text-stone-600">
+              SOLD
+            </p>
+          );
+        } else if (row.status === "CANCELED") {
+          return (
+            <p className="w-full text-center text-sm font-semibold text-red-600">
+              CANCELED
+            </p>
+          );
+        }
+      },
       sortable: true,
-      grow: 0,
+      grow: 1,
     },
     {
       name: (
@@ -103,7 +166,7 @@ export default function TimepieceListTable() {
         </p>
       ),
       cell: (row: any) => (
-        <div className="flex flex-row gap-4 items-center justify-center">
+        <div className="w-full flex flex-row gap-4 items-center justify-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -130,7 +193,6 @@ export default function TimepieceListTable() {
 
   return (
     <>
-      <NavigationPane />
       <div className="flex flex-col">
         <DataTable
           responsive
@@ -163,7 +225,7 @@ export default function TimepieceListTable() {
             </svg>
           }
           pagination
-          paginationPerPage={7}
+          paginationPerPage={10}
           paginationComponentOptions={{
             noRowsPerPage: true,
           }}

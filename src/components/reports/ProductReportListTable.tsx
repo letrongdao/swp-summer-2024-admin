@@ -1,161 +1,99 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
-import NavigationPane from "./NavigationPane";
 import axios from "axios";
 import dateFormat from "@/assistants/date.format";
+import { Avatar } from "antd";
+import ProductCriteriaModal from "./ProductCriteriaModal";
 
-export default function AccountListTable({
-  accountList,
+export default function ProductReportListTable({
+  reportList,
+  productList,
 }: {
-  accountList: any;
+  reportList: any;
+  productList: any;
 }) {
+  const [currentCriteriaShow, setCurrentCriteriaShow] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const columns = [
     {
       name: (
-        <p className="w-fit text-center font-semibold text-tremor-default">
+        <p className="w-full text-center font-semibold text-tremor-default">
           No
         </p>
       ),
-      cell: (row: any, index: any) => <p className="w-fit">{index + 1}</p>,
+      cell: (row: any, index: any) => (
+        <p className="w-full text-center">{index + 1}</p>
+      ),
       grow: 0,
     },
     {
       name: (
         <p className="w-full text-center font-semibold text-tremor-default">
-          Email
+          Reporter
         </p>
       ),
-      selector: (row: any) => row.email,
-      sortable: true,
-      grow: 2,
-    },
-    {
-      name: (
-        <p className="w-full text-center font-semibold text-tremor-default">
-          Username
-        </p>
-      ),
-      cell: (row: any) => <p className="w-full text-start">{row.username}</p>,
-      sortable: true,
-    },
-    {
-      name: (
-        <p className="w-full text-center font-semibold text-tremor-default">
-          Phone number
-        </p>
-      ),
-      selector: (row: any) =>
-        [
-          row.phone.slice(0, 3),
-          " ",
-          row.phone.slice(3, 7),
-          " ",
-          row.phone.slice(7),
-        ].join(""),
+      cell: (row: any) => {
+        return (
+          <div className="w-full flex items-center justify-center gap-2">
+            <Avatar src={row.account.avatar} alt="" size={32} />
+            <p className="font-semibold">{row.account.username}</p>
+          </div>
+        );
+      },
       sortable: true,
       grow: 1,
     },
     {
       name: (
         <p className="w-full text-center font-semibold text-tremor-default">
-          Created date
-        </p>
-      ),
-      selector: (row: any) => dateFormat(row.createdAt, "dd/mm/yyyy"),
-      sortable: true,
-    },
-    {
-      name: (
-        <p className="w-full text-center font-semibold text-tremor-default">
-          Last active
-        </p>
-      ),
-      selector: (row: any) => dateFormat(row.lastActive, "HH:MM dd/mm/yyyy"),
-      sortable: true,
-      sortFunction: (a: any, b: any) => {
-        return new Date(a.lastActive) > new Date(b.lastActive);
-      },
-    },
-    {
-      name: (
-        <p className="w-full text-center font-semibold text-tremor-default">
-          Role
+          Reported product
         </p>
       ),
       cell: (row: any) => {
-        if (row.role === "user") {
-          return (
-            <p className="w-full text-center text-nowrap p-2 rounded-lg bg-sky-600 text-white">
-              USER
-            </p>
-          );
-        } else if (row.role === "admin") {
-          return (
-            <p className="w-full text-center text-nowrap text-[0.8em] p-2 rounded-lg bg-red-600 text-white">
-              ADMINISTRATOR
-            </p>
-          );
-        } else if (row.role === "appraiser") {
-          return (
-            <p className="w-full text-center text-nowrap p-2 rounded-lg bg-green-600 text-white">
-              APPRAISER
-            </p>
-          );
-        } else if (row.role === "staff") {
-          return (
-            <p className="w-full text-center text-nowrap p-2 rounded-lg bg-amber-600 text-white">
-              STAFF
-            </p>
-          );
-        }
+        const product = productList.find(
+          (item: any) => item.id === row.reportedId
+        );
+        return (
+          <div className="w-full flex items-center justify-center py-2 gap-2">
+            <Avatar src={product?.image} alt="" size={64} />
+            <p className="font-semibold">{product?.name}</p>
+          </div>
+        );
       },
       sortable: true,
-      sortFunction: (a: any, b: any) => {
-        return a.role.localeCompare(b.role);
-      },
       grow: 1,
     },
     {
       name: (
         <p className="w-full text-center font-semibold text-tremor-default">
-          Status
+          Misconducted criteria
         </p>
       ),
       cell: (row: any) => {
-        if (row.status === true) {
-          return (
-            <span className="mx-auto">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="24"
-                height="24"
-                fill="green"
-              >
-                <path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11.0026 16L18.0737 8.92893L16.6595 7.51472L11.0026 13.1716L8.17421 10.3431L6.75999 11.7574L11.0026 16Z"></path>
-              </svg>
+        return (
+          <div className="w-full flex items-center justify-center gap-2">
+            <span
+              onClick={() => setCurrentCriteriaShow(row.id)}
+              className="font-bold underline text-sky-600 hover:text-sky-700 cursor-pointer"
+            >
+              {row.criteria.length} criteria
             </span>
-          );
-        } else
-          return (
-            <span className="mx-auto">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="24"
-                height="24"
-                fill="red"
-              >
-                <path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 10.5858L9.17157 7.75736L7.75736 9.17157L10.5858 12L7.75736 14.8284L9.17157 16.2426L12 13.4142L14.8284 16.2426L16.2426 14.8284L13.4142 12L16.2426 9.17157L14.8284 7.75736L12 10.5858Z"></path>
-              </svg>
-            </span>
-          );
+            <ProductCriteriaModal
+              criteria={row.criteria}
+              open={currentCriteriaShow === row.id}
+              setOpen={setCurrentCriteriaShow}
+            />
+          </div>
+        );
       },
       sortable: true,
-      grow: 0,
+      sortFunction: (a: any, b: any) => {
+        if (a.criteria.length === b.criteria.length) return 0;
+        else return a.criteria.length > b.criteria.length ? 1 : -1;
+      },
+      grow: 1,
     },
     {
       name: (
@@ -191,11 +129,10 @@ export default function AccountListTable({
 
   return (
     <>
-      <NavigationPane />
       <div className="flex flex-col">
         <DataTable
-          columns={columns as any}
-          data={accountList}
+          columns={columns}
+          data={reportList}
           sortIcon={
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -209,7 +146,6 @@ export default function AccountListTable({
           }
           striped
           highlightOnHover
-          pointerOnHover
           progressPending={isLoading}
           progressComponent={
             <svg
