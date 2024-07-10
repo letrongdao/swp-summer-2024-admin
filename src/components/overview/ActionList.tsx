@@ -201,38 +201,6 @@ export default function ActionList() {
           </svg>
         </span>
       </div>
-      <div
-        onClick={() => navigate("/transaction")}
-        className="w-full flex items-center gap-6 text-gray-600 px-6 py-4 hover:bg-slate-100 hover:text-stone-950 duration-200 cursor-pointer"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="32"
-          height="32"
-          fill="currentColor"
-        >
-          <path d="M20 22H4C3.44772 22 3 21.5523 3 21V3C3 2.44772 3.44772 2 4 2H20C20.5523 2 21 2.44772 21 3V21C21 21.5523 20.5523 22 20 22ZM19 20V4H5V20H19ZM8 9H16V11H8V9ZM8 13H16V15H8V13Z"></path>
-        </svg>
-        <span className="flex flex-col gap-1">
-          <p className="font-black">Transaction management</p>
-          <p className="text-sm">
-            Take control of every transaction that is made when purchasing a
-            product in the system.
-          </p>
-        </span>
-        <span className="ml-auto">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            width="32"
-            height="32"
-            fill="currentColor"
-          >
-            <path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path>
-          </svg>
-        </span>
-      </div>
     </div>
   );
 }

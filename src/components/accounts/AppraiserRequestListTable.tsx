@@ -9,7 +9,7 @@ import CurrencySplitter from "@/assistants/currencySpliter";
 import ConfirmModal from "../modals/ConfirmModal";
 import dateFormat from "@/assistants/date.format";
 
-export default function SellerRequestListTable({
+export default function AppraiserRequestListTable({
   list,
   getUpdatedStatus,
 }: {
@@ -205,7 +205,7 @@ export default function SellerRequestListTable({
     },
     {
       name: (
-        <p className="w-full font-semibold text-tremor-default">
+        <p className="w-full text-center font-semibold text-tremor-default">
           Request details
         </p>
       ),
@@ -213,7 +213,7 @@ export default function SellerRequestListTable({
         switch (row.type) {
           case "create": {
             return (
-              <div className="font-semibold text-green-500">
+              <div className="mx-auto font-semibold text-green-500">
                 {row.details && ""}
               </div>
             );
@@ -221,20 +221,22 @@ export default function SellerRequestListTable({
           case "update": {
             if (Object.hasOwn(row.update, "price"))
               return (
-                <div className="font-semibold text-sky-500">
+                <div className="mx-auto font-semibold text-sky-500">
                   <p className="pb-2">{row.details}</p>
                 </div>
               );
             else
               return (
-                <div className="font-semibold text-amber-500">
+                <div className="mx-auto font-semibold text-amber-500">
                   {row.details}
                 </div>
               );
           }
           case "delete": {
             return (
-              <div className="font-semibold text-red-500">{row.details}</div>
+              <div className="mx-auto font-semibold text-red-500">
+                {row.details}
+              </div>
             );
           }
         }
