@@ -5,7 +5,6 @@ import axios from "axios";
 import "./style.css";
 import { Avatar, Image, message } from "antd";
 import ProductInformation from "../timepieces/ProductInformation";
-import CurrencySplitter from "@/assistants/currencySpliter";
 import ConfirmModal from "../modals/ConfirmModal";
 import dateFormat from "@/assistants/date.format";
 
@@ -113,8 +112,8 @@ export default function AppraiserRequestListTable({
       cell: (row: any) => {
         return (
           <div className="flex items-center gap-2">
-            <Avatar src={row.account.avatar} alt="" size={40} />
-            <p>{row.account.username}</p>
+            <Avatar src={row.account?.avatar} alt="" size={40} />
+            <p>{row.account?.username}</p>
           </div>
         );
       },
