@@ -257,6 +257,7 @@ export default function EditProductModal({
       setYearOfProduction(product.yearOfProduction);
       setPastUsageTime(product.pastUsageTime);
       setRemainingInsurance(product.remainingInsurance);
+      setStatus(product.status);
     }
   };
 
@@ -333,8 +334,8 @@ export default function EditProductModal({
       }
       open={open}
       onCancel={(e) => {
-        e.stopPropagation();
         resetData();
+        e.stopPropagation();
         setOpen(false);
       }}
       footer={null}

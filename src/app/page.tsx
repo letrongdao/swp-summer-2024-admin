@@ -12,6 +12,8 @@ export default function Home() {
   const [signInFormOpen, setSignInFormOpen] = useState(false);
   const [accountList, setAccountList] = useState([]);
   const [timepieceList, setTimepieceList] = useState([]);
+  const [requestList, setRequestList] = useState([]);
+  const [reportList, setReportList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const adminSignIn = sessionStorage.adminSignIn
     ? JSON.parse(sessionStorage.adminSignIn)
@@ -39,12 +41,36 @@ export default function Home() {
       .catch((err) => console.log(err));
   };
 
+  const getRequestData = async () => {
+    setIsLoading(true);
+    await axios
+      .get("http://localhost:3000/sellerRequest/pending")
+      .then((res) => {
+        setRequestList(res.data);
+        setIsLoading(false);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const getReportData = async () => {
+    setIsLoading(true);
+    await axios
+      .get("http://localhost:3000/report")
+      .then((res) => {
+        setReportList(res.data);
+        setIsLoading(false);
+      })
+      .catch((err) => console.log(err));
+  };
+
   useEffect(() => {
     if (!adminSignIn) {
       setSignInFormOpen(true);
     }
     getAccountData();
     getTimepieceData();
+    getRequestData();
+    getReportData();
   }, []);
 
   if (isLoading) return <Loading />;
@@ -56,7 +82,12 @@ export default function Home() {
       {adminSignIn === null ? null : (
         <div className="flex flex-col items-start justify-start gap-4 p-4">
           <p className="font-bold text-xl px-4">OVERVIEW STATISTICS</p>
-          <Cards totalAccount={accountList} totalTimepiece={timepieceList} />
+          <Cards
+            totalAccount={accountList}
+            totalTimepiece={timepieceList}
+            totalRequest={requestList}
+            totalReport={reportList}
+          />
           <p className="font-bold text-xl px-4 mt-8">GENERAL</p>
           <div className="w-full flex justify-center">
             <ActionList />

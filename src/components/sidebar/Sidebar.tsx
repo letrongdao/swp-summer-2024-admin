@@ -57,14 +57,6 @@ export default function Sidebar() {
       </Link>
       <div className="w-full border-b border-black my-[-5%]" />
       <Link
-        href="/transaction"
-        className={`flex items-center w-full h-[8vh] text-sm font-bold px-4 rounded-md hover:bg-gray-800 hover:text-white
-        ${path === "/transaction" ? "bg-gray-800 text-white" : ""}`}
-      >
-        Transactions
-      </Link>
-      <div className="w-full border-b border-black my-[-5%]" />
-      <Link
         href="/report/product"
         className={`flex items-center w-full h-[8vh] text-sm font-bold px-4 rounded-md mb-[-10%] hover:bg-gray-800 hover:text-white
           ${path.match("/report") ? "bg-gray-800 text-white" : ""}`}
