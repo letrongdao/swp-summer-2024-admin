@@ -32,7 +32,7 @@ export default function AdminSignInForm({ modalOpen }: { modalOpen: boolean }) {
           .patch(`http://localhost:3000/auth/active_status/${account.id}`)
           .catch((err) => console.log(err));
         setTimeout(() => {
-          if (account.role === "admin") {
+          if (account.role === "admin") {        
             sessionStorage.setItem("adminSignIn", JSON.stringify(account));
             window.location.reload(); 
           } else if (account.role === "appraiser") {
