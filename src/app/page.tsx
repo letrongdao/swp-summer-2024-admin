@@ -11,13 +11,15 @@ import ActionList from "@/components/overview/ActionList";
 export default function Home() {
   const [signInFormOpen, setSignInFormOpen] = useState(false);
   const [accountList, setAccountList] = useState([]);
+  const [todayActiveAccountList, setTodayActiveAccountList] = useState([]);
   const [timepieceList, setTimepieceList] = useState([]);
   const [requestList, setRequestList] = useState([]);
   const [reportList, setReportList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const adminSignIn = sessionStorage.adminSignIn
-    ? JSON.parse(sessionStorage.adminSignIn)
-    : null;
+
+  const [adminSignIn, setAdminSignIn] = useState();
+
+  useEffect(() => {}, []);
 
   const getAccountData = async () => {
     setIsLoading(true);
@@ -25,6 +27,17 @@ export default function Home() {
       .get("http://localhost:3000/auth/accounts")
       .then((res) => {
         setAccountList(res.data);
+        setIsLoading(false);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const getTodayActiveAccountData = async () => {
+    setIsLoading(true);
+    await axios
+      .get("http://localhost:3000/auth/active_today")
+      .then((res) => {
+        setTodayActiveAccountList(res.data);
         setIsLoading(false);
       })
       .catch((err) => console.log(err));
@@ -64,10 +77,13 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!adminSignIn) {
+    if (sessionStorage.adminSignIn)
+      setAdminSignIn(JSON.parse(sessionStorage.adminSignIn));
+    else {
       setSignInFormOpen(true);
     }
     getAccountData();
+    getTodayActiveAccountData();
     getTimepieceData();
     getRequestData();
     getReportData();
@@ -84,6 +100,7 @@ export default function Home() {
           <p className="font-bold text-xl px-4">OVERVIEW STATISTICS</p>
           <Cards
             totalAccount={accountList}
+            totalTodayActiveAccount={todayActiveAccountList}
             totalTimepiece={timepieceList}
             totalRequest={requestList}
             totalReport={reportList}

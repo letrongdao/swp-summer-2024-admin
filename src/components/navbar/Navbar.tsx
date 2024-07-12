@@ -1,12 +1,17 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Navbar() {
-  const user = sessionStorage.adminSignIn
-    ? JSON.parse(sessionStorage.adminSignIn)
-    : null;
+  const [user, setUser] = useState({
+    role: null,
+  });
+
+  useEffect(() => {}, []);
 
   useEffect(() => {
+    if (sessionStorage.adminSignIn)
+      setUser(JSON.parse(sessionStorage.adminSignIn));
+
     if (!user && !window.location.pathname.match("/")) {
       window.location.replace("/");
     }
@@ -74,10 +79,10 @@ export default function Navbar() {
           className={`${
             !user && "hidden"
           } px-4 py-2 rounded-xl text-white font-semibold ${
-            user && user.role === "admin" ? "bg-red-700" : "bg-sky-700"
+            user && user.role === "admin" ? "bg-red-700" : "bg-green-700"
           }`}
         >
-          {user && user.role === "admin" ? "ADMINISTRATOR" : "STAFF"}
+          {user && user.role === "admin" ? "ADMINISTRATOR" : "APPRAISER"}
         </p>
         <button
           onClick={signOut}
