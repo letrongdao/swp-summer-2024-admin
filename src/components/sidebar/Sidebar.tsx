@@ -39,13 +39,6 @@ export default function Sidebar() {
       >
         Sellers' requests
       </Link>
-      <Link
-        href="/user/appraisers"
-        className={`flex items-center w-[92%] h-[6vh] text-xs px-4 my-2 rounded-md ml-4 mb-[-10%] hover:bg-cyan-800 hover:text-white
-        ${path === "/user/appraisers" ? "bg-cyan-800 text-white" : ""}`}
-      >
-        Appraisers' requests
-      </Link>
 
       <div className="w-full border-b border-black mt-2 mb-[-5%]" />
       <Link

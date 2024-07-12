@@ -4,14 +4,16 @@ import { Card } from "@tremor/react";
 
 export default function Cards({
   totalAccount,
+  totalTodayActiveAccount,
   totalTimepiece,
   totalRequest,
   totalReport,
 }: {
-  totalAccount: any;
-  totalTimepiece: any;
-  totalRequest: any;
-  totalReport: any;
+  totalAccount: any[];
+  totalTodayActiveAccount: any[];
+  totalTimepiece: any[];
+  totalRequest: any[];
+  totalReport: any[];
 }) {
   const [isShowingMore, setIsShowingMore] = useState(false);
 
@@ -32,6 +34,19 @@ export default function Cards({
             <h4 className="text-tremor-default text-gray-300">Total account</h4>
             <p className="text-tremor-metric font-semibold text-white">
               {totalAccount.length}
+            </p>
+          </Card>
+          <Card
+            className="grow min-w-fit !bg-teal-950 inline-block cursor-pointer"
+            decoration="top"
+            decorationColor="teal"
+            onClick={() => (window.location.href = "/user/accounts")}
+          >
+            <h4 className="text-tremor-default text-gray-300">
+              Total today active account
+            </h4>
+            <p className="text-tremor-metric font-semibold text-white">
+              {totalTodayActiveAccount.length}
             </p>
           </Card>
           <Card

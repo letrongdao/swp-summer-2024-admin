@@ -1,12 +1,17 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Navbar() {
-  const user = sessionStorage.adminSignIn
-    ? JSON.parse(sessionStorage.adminSignIn)
-    : null;
+  const [user, setUser] = useState({
+    role: null,
+  });
+
+  useEffect(() => {}, []);
 
   useEffect(() => {
+    if (sessionStorage.adminSignIn)
+      setUser(JSON.parse(sessionStorage.adminSignIn));
+
     if (!user && !window.location.pathname.match("/")) {
       window.location.replace("/");
     }

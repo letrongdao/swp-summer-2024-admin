@@ -28,7 +28,7 @@ export default function SellerRequestListTable({
     if (type === "reject") {
       await axios
         .patch(`http://localhost:3000/product/${request.product.id}`, {
-          status: "AVAILABLE",
+          status: request.type === "create" ? "CANCELED" : "AVAILABLE",
         })
         .then((res) => {
           return;
@@ -50,7 +50,15 @@ export default function SellerRequestListTable({
     } else {
       switch (request.type) {
         case "create": {
-          return;
+          await axios
+            .patch(`http://localhost:3000/product/${request.product.id}`, {
+              status: "AVAILABLE",
+            })
+            .then((res) => {
+              return;
+            })
+            .catch((err) => console.log(err));
+          break;
         }
         case "delete": {
           await axios
@@ -214,7 +222,7 @@ export default function SellerRequestListTable({
           case "create": {
             return (
               <div className="font-semibold text-green-500">
-                {row.details && ""}
+                {row.details ? row.details : ""}
               </div>
             );
           }
