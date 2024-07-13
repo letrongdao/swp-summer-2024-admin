@@ -22,12 +22,13 @@ export default function AppraiserRequestListTable({
   const [isRejectingOne, setIsRejectingOne] = useState("");
   const [isApprovingAll, setIsApprovingAll] = useState(false);
   const [isRejectingAll, setIsRejectingAll] = useState(false);
+  const [sellerRequestList, setSellerRequestList] = useState(list);
 
-  const solveRequest = async (request: any, type: string) => {
+  const solveRequest = async (request: any, type: string, newPrice?: number, note?: string) => {
     if (type === "reject") {
       await axios
         .patch(`http://localhost:3000/product/${request.product.id}`, {
-          status: "AVAILABLE",
+          status: request.type === "create" ? "CANCELED" : "AVAILABLE",
         })
         .then((res) => {
           return;
@@ -36,6 +37,7 @@ export default function AppraiserRequestListTable({
       await axios
         .patch(`http://localhost:3000/sellerRequest/${request.id}`, {
           status: "rejected",
+          note: note,
         })
         .then((res) => {
           message.success({
@@ -49,7 +51,15 @@ export default function AppraiserRequestListTable({
     } else {
       switch (request.type) {
         case "create": {
-          return;
+          await axios
+            .patch(`http://localhost:3000/product/${request.product.id}`, {
+              status: "AVAILABLE",
+            })
+            .then((res) => {
+              return;
+            })
+            .catch((err) => console.log(err));
+          break;
         }
         case "delete": {
           await axios
@@ -90,17 +100,51 @@ export default function AppraiserRequestListTable({
           getUpdatedStatus(true);
         })
         .catch((err) => console.log(err));
+      if (newPrice) {
+        await axios
+          .patch(`http://localhost:3000/product/${request.product.id}`, {
+            price: newPrice,
+            status: "AVAILABLE",
+          })
+          .then((res) => {
+            return;
+          })
+          .catch((err) => console.log(err));
+      }
     }
+    await fetchUpdatedData();
+    getUpdatedStatus(true);
   };
 
   const handleSolveRequest = async (value: any) => {
-    console.log("Approve: ", value);
+    console.log("Solve request: ", value);
     if (Array.isArray(value.object)) {
-      value.object.map(async (item: any) => {
-        await solveRequest(item, value.action);
-      });
-    } else await solveRequest(value.object, value.action);
+      await Promise.all(value.object.map(async (item: any) => {
+        await solveRequest(item, value.action, value.newPrice, value.rejectNote);
+      }));
+    } else {
+      await solveRequest(value.object, value.action, value.newPrice, value.rejectNote);
+    }
+    setTimeout(() => {
+      fetchUpdatedData();
+    }, 1000); 
   };
+
+  const fetchUpdatedData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get("http://localhost:3000/sellerRequest");
+      setSellerRequestList(response.data);
+    } catch (error) {
+      console.error("Error fetching updated data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    console.log("sellerRequestList updated:", sellerRequestList);
+  }, [sellerRequestList]);
 
   const columns = [
     {
