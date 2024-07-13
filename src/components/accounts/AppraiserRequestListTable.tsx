@@ -5,7 +5,6 @@ import axios from "axios";
 import "./style.css";
 import { Avatar, Image, message } from "antd";
 import ProductInformation from "../timepieces/ProductInformation";
-import ConfirmModal from "../modals/ConfirmModal";
 import dateFormat from "@/assistants/date.format";
 import AppraisalConfirm from "../modals/AppraisalConfirm";
 
@@ -367,14 +366,14 @@ export default function AppraiserRequestListTable({
                 >
                   Approve all selected
                 </button>
-                <ConfirmModal
+                <AppraisalConfirm
                   action="approve"
                   object={selectedRows}
                   open={isApprovingAll}
                   setOpen={setIsApprovingAll}
                   getConfirm={handleSolveRequest}
                 />
-                <ConfirmModal
+                <AppraisalConfirm
                   action="reject"
                   object={selectedRows}
                   open={isRejectingAll}
