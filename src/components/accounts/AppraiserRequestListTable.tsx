@@ -7,6 +7,7 @@ import { Avatar, Image, message } from "antd";
 import ProductInformation from "../timepieces/ProductInformation";
 import dateFormat from "@/assistants/date.format";
 import AppraisalConfirm from "../modals/AppraisalConfirm";
+import ConfirmModal from "../modals/ConfirmModal";
 
 export default function AppraiserRequestListTable({
   list,
@@ -23,8 +24,9 @@ export default function AppraiserRequestListTable({
   const [isApprovingAll, setIsApprovingAll] = useState(false);
   const [isRejectingAll, setIsRejectingAll] = useState(false);
   const [sellerRequestList, setSellerRequestList] = useState(list);
+  const [schedule, setSchedule] = useState("");
 
-  const solveRequest = async (request: any, type: string, newPrice?: number, note?: string) => {
+  const solveRequest = async (request: any, type: string, newPrice?: number, note?: string ,schedule? : Date) => {
     if (type === "reject") {
       await axios
         .patch(`http://localhost:3000/product/${request.product.id}`, {
@@ -129,6 +131,8 @@ export default function AppraiserRequestListTable({
       fetchUpdatedData();
     }, 1000); 
   };
+
+
 
   const fetchUpdatedData = async () => {
     setIsLoading(true);
@@ -246,47 +250,47 @@ export default function AppraiserRequestListTable({
       },
       grow: 1,
     },
-    {
-      name: (
-        <p className="w-full text-center font-semibold text-tremor-default">
-          Request details
-        </p>
-      ),
-      cell: (row: any) => {
-        switch (row.type) {
-          case "create": {
-            return (
-              <div className="mx-auto font-semibold text-green-500">
-                {row.details && ""}
-              </div>
-            );
-          }
-          case "update": {
-            if (Object.hasOwn(row.update, "price"))
-              return (
-                <div className="mx-auto font-semibold text-sky-500">
-                  <p className="pb-2">{row.details}</p>
-                </div>
-              );
-            else
-              return (
-                <div className="mx-auto font-semibold text-amber-500">
-                  {row.details}
-                </div>
-              );
-          }
-          case "delete": {
-            return (
-              <div className="mx-auto font-semibold text-red-500">
-                {row.details}
-              </div>
-            );
-          }
-        }
-      },
-      sortable: true,
-      grow: 1,
-    },
+    // {
+    //   name: (
+    //     <p className="w-full text-center font-semibold text-tremor-default">
+    //       Request details
+    //     </p>
+    //   ),
+    //   cell: (row: any) => {
+    //     switch (row.type) {
+    //       case "create": {
+    //         return (
+    //           <div className="mx-auto font-semibold text-green-500">
+    //             {row.details && ""}
+    //           </div>
+    //         );
+    //       }
+    //       case "update": {
+    //         if (Object.hasOwn(row.update, "price"))
+    //           return (
+    //             <div className="mx-auto font-semibold text-sky-500">
+    //               <p className="pb-2">{row.details}</p>
+    //             </div>
+    //           );
+    //         else
+    //           return (
+    //             <div className="mx-auto font-semibold text-amber-500">
+    //               {row.details}
+    //             </div>
+    //           );
+    //       }
+    //       case "delete": {
+    //         return (
+    //           <div className="mx-auto font-semibold text-red-500">
+    //             {row.details}
+    //           </div>
+    //         );
+    //       }
+    //     }
+    //   },
+    //   sortable: true,
+    //   grow: 1,
+    // },
     {
       name: (
         <p className="w-full text-center font-semibold text-tremor-default">
@@ -307,7 +311,7 @@ export default function AppraiserRequestListTable({
                 onClick={() => setIsApprovingOne(row.id)}
                 className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-800 text-white font-semibold text-nowrap"
               >
-                Approve
+                Schedule
               </button>
               <button
                 onClick={() => setIsRejectingOne(row.id)}
@@ -315,7 +319,7 @@ export default function AppraiserRequestListTable({
               >
                 Reject
               </button>
-              <AppraisalConfirm
+              <ConfirmModal
                 action="approve"
                 object={row}
                 open={isApprovingOne === row.id}
@@ -328,7 +332,7 @@ export default function AppraiserRequestListTable({
                 open={isRejectingOne === row.id}
                 setOpen={setIsRejectingOne}
                 getConfirm={handleSolveRequest}
-              />
+              />             
             </div>
           );
       },
