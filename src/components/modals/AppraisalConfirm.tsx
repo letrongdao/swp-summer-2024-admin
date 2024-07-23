@@ -1,7 +1,5 @@
-import { Modal, Input, DatePicker, TimePicker, message } from "antd";
+import { Modal, Input, message } from "antd";
 import React, { useState } from "react";
-import moment from "moment";
-import dayjs from "dayjs";
 
 export default function AppraisalConfirm({
   action,
@@ -9,71 +7,29 @@ export default function AppraisalConfirm({
   open,
   setOpen,
   getConfirm,
-  onClose,
 }: {
   action?: string;
   object: any | any[];
   open: boolean;
   setOpen: Function;
   getConfirm: Function;
-  onClose: boolean;
-}): React.JSX.Element {
-  const [appointmentDate, setAppointmentDate] = useState<moment.Moment | null>(
-    null
-  );
-  const [appointmentTime, setAppointmentTime] = useState<moment.Moment | null>(
-    null
-  );
+}) {
   const [note, setNote] = useState("");
-  const appointmentMoment = moment();
-  const appointmentDayjs = converDayjs(appointmentMoment);
-  console.log(appointmentDayjs);
-  
+
   const handleConfirm = () => {
     let data: any = {
       action: action,
       object: object,
     };
 
-    if (action === "schedule appointment") {
-      if (
-        appointmentDate &&
-        appointmentTime &&
-        moment.isMoment(appointmentTime)
-      ) {
-        data.appointmentDate = appointmentDate.format("YYYY-MM-DD");
-        data.appointmentTime = appointmentTime.format("HH:mm");
-        data.note = `Appointment scheduled for ${data.appointmentDate} at ${data.appointmentTime}`;
-      } else {
-        message.error("Please select a valid date and time");
-        return;
-      }
-    }
-
     if (action === "reject" && note) {
       data.note = note;
     }
 
     getConfirm(data);
-    setOpen(false);
-    setAppointmentDate(null);
-    setAppointmentTime(null);
+    setOpen("");
     setNote("");
   };
-
-  const status = action?.match("schedule appointment");
-
-  function converDayjs(
-    appointmentTime: moment.Moment
-  ): import("dayjs").Dayjs | null | undefined {
-    if (!appointmentTime) return null;
-    try {
-      return dayjs(appointmentTime.toISOString());
-    } catch (error) {
-      console.error("Error converting to Dayjs:", error);
-      return undefined;
-    }
-  }
 
   return (
     <Modal
@@ -84,32 +40,13 @@ export default function AppraisalConfirm({
       footer={null}
       onCancel={(e) => {
         e.stopPropagation();
-        setOpen(false);
-        setAppointmentDate(null);
-        setAppointmentTime(null);
+        setOpen("");
         setNote("");
       }}
       centered
     >
-      <p className="text-gray-700 text-md italic">
-        Are you sure you want to do this?
-      </p>
-      {status ? (
-        <div className="mt-4">
-          <DatePicker
-            value={appointmentDate}
-            onChange={(date) => setAppointmentDate(date)}
-            className="w-full mb-2"
-          />
-
-          <TimePicker
-            value={appointmentTime ? converDayjs(appointmentTime) : null}
-            onChange={(time) => setAppointmentTime(moment(time.toDate()))}
-            className="w-full"
-            format="HH:mm"
-          />
-        </div>
-      ) : (
+      <p className="text-gray-700 text-md italic">Are you sure you want to do this?</p>
+      {action === "reject" && (
         <Input.TextArea
           placeholder="Enter reject note"
           value={note}
@@ -121,8 +58,6 @@ export default function AppraisalConfirm({
         <button
           onClick={() => {
             setOpen(false);
-            setAppointmentDate(null);
-            setAppointmentTime(null);
             setNote("");
           }}
           className="text-xs hover:underline"
@@ -131,11 +66,7 @@ export default function AppraisalConfirm({
         </button>
         <button
           onClick={handleConfirm}
-          className={`px-8 py-2 rounded-xl ${
-            status
-              ? "bg-green-600 hover:bg-green-800"
-              : "bg-red-600 hover:bg-red-800"
-          } duration-200 text-white font-semibold text-nowrap`}
+          className={`px-8 py-2 rounded-xl ${action === "schedule appointment" ? "bg-green-600 hover:bg-green-800" : "bg-red-600 hover:bg-red-800"} duration-200 text-white font-semibold text-nowrap`}
         >
           CONFIRM
         </button>
