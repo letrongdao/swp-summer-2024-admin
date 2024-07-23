@@ -16,11 +16,11 @@ export default function page() {
       .get("http://localhost:3000/sellerRequest")
       .then((res) => {
         let temp = res.data;
-        const ordering: any = { pending: 0, approved: 1, rejected: 2 };
+        const ordering: any = { pending: 0, approved: 1, rejected: 1 };
         temp.sort(function (a: any, b: any) {
           return (
             ordering[a.status] - ordering[b.status] ||
-            new Date(a.updatedAt) < new Date(b.updatedAt)
+            new Date(a.updatedAt) > new Date(b.updatedAt)
           );
         });
         setSellerRequestList(temp);

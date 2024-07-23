@@ -24,18 +24,15 @@ export default function AppraiserRequestListTable({
   const [isRejectingAll, setIsRejectingAll] = useState(false);
   const [sellerRequestList, setSellerRequestList] = useState(list);
 
-  const solveRequest = async (
-    request: any,
-    type: string,
-    note?: string,
-  ) => {
-    if (type === "reject") {
+  const solveRequest = async (request: any, action: string, note?: string) => {
+    if (action === "reject") {
       await axios
         .patch(`http://localhost:3000/product/${request.product.id}`, {
-          status:  "CANCELED",
+          status: "CANCELED",
+          note: note,
         })
         .then((res) => {
-          return;
+          console.log("Rejected: ", res.data);
         })
         .catch((err) => console.log(err));
       await axios
@@ -53,15 +50,14 @@ export default function AppraiserRequestListTable({
         })
         .catch((err) => console.log(err));
     } else {
-     
-          await axios
-            .patch(`http://localhost:3000/product/${request.product.id}`, {
-              status: "AVAILABLE",
-            })
-            .then((res) => {
-              return;
-            })
-            .catch((err) => console.log(err));
+      await axios
+        .patch(`http://localhost:3000/product/${request.product.id}`, {
+          status: "AVAILABLE",
+        })
+        .then((res) => {
+          return;
+        })
+        .catch((err) => console.log(err));
       await axios
         .patch(`http://localhost:3000/sellerRequest/${request.id}`, {
           status: "approved",
@@ -76,30 +72,16 @@ export default function AppraiserRequestListTable({
         })
         .catch((err) => console.log(err));
     }
-    await fetchUpdatedData();
-    getUpdatedStatus(true);
+    await fetchUpdatedData().finally(() => {
+      getUpdatedStatus(true);
+    });
   };
 
   const handleSolveRequest = async (value: any) => {
     console.log("Solve request: ", value);
-    if (Array.isArray(value.object)) {
-      await Promise.all(
-        value.object.map(async (item: any) => {
-          await solveRequest(
-            item,
-            value.action,
-            
-            value.rejectNote
-          );
-        })
-      );
-    } else {
-      await solveRequest(
-        value.object,
-        value.action,
-       value.rejectNote
-      );
-    }
+
+    await solveRequest(value.object, value.action, value.note);
+
     setTimeout(() => {
       fetchUpdatedData();
     }, 1000);
@@ -222,7 +204,6 @@ export default function AppraiserRequestListTable({
       grow: 1,
     },
 
-    
     {
       name: (
         <p className="w-full text-center font-semibold text-tremor-default">
@@ -257,7 +238,6 @@ export default function AppraiserRequestListTable({
                 open={isApprovingOne === row.id}
                 setOpen={setIsApprovingOne}
                 getConfirm={handleSolveRequest}
-               
               />
               <AppraisalConfirm
                 action="reject"
@@ -265,7 +245,6 @@ export default function AppraiserRequestListTable({
                 open={isRejectingOne === row.id}
                 setOpen={setIsRejectingOne}
                 getConfirm={handleSolveRequest}
-               
               />
             </div>
           );
@@ -310,7 +289,6 @@ export default function AppraiserRequestListTable({
                   open={isApprovingAll}
                   setOpen={setIsApprovingAll}
                   getConfirm={handleSolveRequest}
-                  
                 />
                 <AppraisalConfirm
                   action="reject"
@@ -318,7 +296,6 @@ export default function AppraiserRequestListTable({
                   open={isRejectingAll}
                   setOpen={setIsRejectingAll}
                   getConfirm={handleSolveRequest}
-                  
                 />
               </div>
             </>

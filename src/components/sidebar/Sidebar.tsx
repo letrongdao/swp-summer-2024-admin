@@ -46,13 +46,6 @@ export default function Sidebar() {
       >
         Users' appointments
       </Link>
-      <Link
-        href="/user/contacts"
-        className={`flex items-center w-[92%] h-[6vh] text-xs px-4 my-2 rounded-md ml-4 mb-[-10%] hover:bg-cyan-800 hover:text-white
-        ${path === "/user/contacts" ? "bg-cyan-800 text-white" : ""}`}
-      >
-        Contacts
-      </Link>
 
       <div className="w-full border-b border-black mt-2 mb-[-5%]" />
       <Link

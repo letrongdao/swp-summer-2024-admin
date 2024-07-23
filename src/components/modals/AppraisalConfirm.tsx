@@ -20,11 +20,8 @@ export default function AppraisalConfirm({
     let data: any = {
       action: action,
       object: object,
+      note: note,
     };
-
-    if (action === "reject" && note) {
-      data.note = note;
-    }
 
     getConfirm(data);
     setOpen("");
@@ -45,14 +42,21 @@ export default function AppraisalConfirm({
       }}
       centered
     >
-      <p className="text-gray-700 text-md italic">Are you sure you want to do this?</p>
+      <p className="text-gray-700 text-md italic">
+        Are you sure you want to do this?
+      </p>
       {action === "reject" && (
-        <Input.TextArea
-          placeholder="Enter reject note"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          className="mt-4"
-        />
+        <div className="flex flex-col items-start gap-2 mt-4">
+          <p>
+            Reject reason: <span className="text-red-600">*</span>
+          </p>
+          <Input.TextArea
+            placeholder="Enter reject reason"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            className="font-montserrat"
+          />
+        </div>
       )}
       <div className="w-full flex items-center justify-end gap-8 px-2 pt-8">
         <button
@@ -65,8 +69,13 @@ export default function AppraisalConfirm({
           CANCEL
         </button>
         <button
+          disabled={action === "reject" && note.length === 0}
           onClick={handleConfirm}
-          className={`px-8 py-2 rounded-xl ${action === "schedule appointment" ? "bg-green-600 hover:bg-green-800" : "bg-red-600 hover:bg-red-800"} duration-200 text-white font-semibold text-nowrap`}
+          className={`px-8 py-2 rounded-xl ${
+            action === "approve"
+              ? "bg-green-600 hover:bg-green-800"
+              : "bg-red-600 hover:bg-red-800"
+          } duration-200 text-white font-semibold text-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed`}
         >
           CONFIRM
         </button>
