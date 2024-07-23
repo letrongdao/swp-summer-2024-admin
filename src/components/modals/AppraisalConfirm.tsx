@@ -18,12 +18,17 @@ export default function AppraisalConfirm({
   getConfirm: Function;
   onClose: boolean;
 }): React.JSX.Element {
-  const [appointmentDate, setAppointmentDate] = useState<moment.Moment | null>(null);
-  const [appointmentTime, setAppointmentTime] = useState<moment.Moment | null>(null);
+  const [appointmentDate, setAppointmentDate] = useState<moment.Moment | null>(
+    null
+  );
+  const [appointmentTime, setAppointmentTime] = useState<moment.Moment | null>(
+    null
+  );
   const [note, setNote] = useState("");
   const appointmentMoment = moment();
-const appointmentDayjs = converDayjs(appointmentMoment);
-console.log(appointmentDayjs);
+  const appointmentDayjs = converDayjs(appointmentMoment);
+  console.log(appointmentDayjs);
+  
   const handleConfirm = () => {
     let data: any = {
       action: action,
@@ -31,7 +36,11 @@ console.log(appointmentDayjs);
     };
 
     if (action === "schedule appointment") {
-      if (appointmentDate && appointmentTime && moment.isMoment(appointmentTime)) {
+      if (
+        appointmentDate &&
+        appointmentTime &&
+        moment.isMoment(appointmentTime)
+      ) {
         data.appointmentDate = appointmentDate.format("YYYY-MM-DD");
         data.appointmentTime = appointmentTime.format("HH:mm");
         data.note = `Appointment scheduled for ${data.appointmentDate} at ${data.appointmentTime}`;
@@ -54,7 +63,9 @@ console.log(appointmentDayjs);
 
   const status = action?.match("schedule appointment");
 
-  function converDayjs(appointmentTime: moment.Moment): import("dayjs").Dayjs | null | undefined {
+  function converDayjs(
+    appointmentTime: moment.Moment
+  ): import("dayjs").Dayjs | null | undefined {
     if (!appointmentTime) return null;
     try {
       return dayjs(appointmentTime.toISOString());
@@ -80,7 +91,9 @@ console.log(appointmentDayjs);
       }}
       centered
     >
-      <p className="text-gray-700 text-md italic">Are you sure you want to do this?</p>
+      <p className="text-gray-700 text-md italic">
+        Are you sure you want to do this?
+      </p>
       {status ? (
         <div className="mt-4">
           <DatePicker
@@ -88,8 +101,7 @@ console.log(appointmentDayjs);
             onChange={(date) => setAppointmentDate(date)}
             className="w-full mb-2"
           />
-          
-          
+
           <TimePicker
             value={appointmentTime ? converDayjs(appointmentTime) : null}
             onChange={(time) => setAppointmentTime(moment(time.toDate()))}
@@ -120,7 +132,9 @@ console.log(appointmentDayjs);
         <button
           onClick={handleConfirm}
           className={`px-8 py-2 rounded-xl ${
-            status ? "bg-green-600 hover:bg-green-800" : "bg-red-600 hover:bg-red-800"
+            status
+              ? "bg-green-600 hover:bg-green-800"
+              : "bg-red-600 hover:bg-red-800"
           } duration-200 text-white font-semibold text-nowrap`}
         >
           CONFIRM

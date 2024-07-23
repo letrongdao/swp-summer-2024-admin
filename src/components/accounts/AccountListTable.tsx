@@ -50,7 +50,7 @@ export default function AccountListTable({
           No
         </p>
       ),
-      cell: (row: any, index: any) => <p className="w-min">{index + 1}</p>,
+      cell: (row: any, index: any) => <p className="w-fit">{index + 1}</p>,
       grow: 0,
     },
     {
@@ -214,11 +214,24 @@ export default function AccountListTable({
         </p>
       ),
       cell: (row: any) => (
-        <div className="w-full flex flex-row gap-4 items-center justify-center">
+        <div
+          className={`w-full flex flex-row gap-4 items-center justify-center ${
+            row.id === user.id && "hidden"
+          }`}
+        >
           {row.status === true ? (
             <>
               <button
-                onClick={() => setIsBanningAccount(row.id)}
+                onClick={() => {
+                  if (row.id === user.id) {
+                    message.error({
+                      key: "invalidAction",
+                      content:
+                        "Unable to take action on currently signed in account.",
+                      duration: 5,
+                    });
+                  } else setIsBanningAccount(row.id);
+                }}
                 className="flex flex-col items-center gap 2 text-[0.8em] text-red-500 hover:text-red-700"
               >
                 <svg
@@ -243,7 +256,16 @@ export default function AccountListTable({
           ) : (
             <>
               <button
-                onClick={() => setIsActivatingAccount(row.id)}
+                onClick={() => {
+                  if (row.id === user.id) {
+                    message.error({
+                      key: "invalidAction",
+                      content:
+                        "Unable to take action on currently signed in account.",
+                      duration: 5,
+                    });
+                  } else setIsActivatingAccount(row.id);
+                }}
                 className="flex flex-col items-center gap 2 text-[0.8em] text-green-500 hover:text-green-700"
               >
                 <svg
@@ -308,6 +330,7 @@ export default function AccountListTable({
           paginationComponentOptions={{
             noRowsPerPage: true,
           }}
+          conditionalRowStyles={[]}
         />
       </div>
     </>

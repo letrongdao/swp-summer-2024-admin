@@ -174,8 +174,14 @@ export default function TimepieceListTable({
           );
         } else if (row.status === "CANCELED") {
           return (
-            <p className="w-full text-center text-sm font-semibold text-red-600">
+            <p className="w-full text-center text-sm font-semibold text-pink-700">
               CANCELED
+            </p>
+          );
+        } else if (row.status === "REMOVED") {
+          return (
+            <p className="w-full text-center text-sm font-semibold text-red-600">
+              REMOVED
             </p>
           );
         }

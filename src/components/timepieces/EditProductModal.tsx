@@ -43,6 +43,7 @@ export default function EditProductModal({
     product.remainingInsurance
   );
   const [status, setStatus] = useState(product.status);
+  const [note, setNote] = useState(product.note || "");
 
   const [isValidForm, setIsValidForm] = useState(false);
 
@@ -219,6 +220,7 @@ export default function EditProductModal({
       pastUsageTime,
       remainingInsurance,
       status,
+      note: status === "CANCELED" ? note : "",
     };
     console.log("Product: ", productData);
     await axios
@@ -246,7 +248,7 @@ export default function EditProductModal({
       setBrand(product.brand);
       setImage(product.image);
       setDescription(product.description);
-      setPrice(product.price);
+      setPrice(Math.round(product.price * 100) / 100);
       setType(product.type);
       setDialColorList(product.dialColor.split(","));
       setWaterResistance(product.waterResistance);
@@ -267,6 +269,7 @@ export default function EditProductModal({
       brand.length > 0 &&
       image.length > 0 &&
       price > 0 &&
+      price < 100000 &&
       description.length > 0 &&
       type &&
       dialColorList.length > 0 &&
@@ -275,6 +278,7 @@ export default function EditProductModal({
       caseSize > 0 &&
       (box === true || box === false) &&
       (papers === true || papers === false) &&
+      !(status === "CANCELED" && note.length === 0) &&
       (name !== product.name ||
         brand !== product.brand ||
         image !== product.image ||
@@ -308,6 +312,7 @@ export default function EditProductModal({
     box,
     papers,
     status,
+    note,
   ]);
 
   const handleFileUpload = async (e: any) => {
@@ -388,7 +393,7 @@ export default function EditProductModal({
         <div className="w-2/3 flex flex-col items-start gap-2">
           <div className="w-full flex flex-col items-start justify-start gap-1">
             <p className="text-[0.7em] text-sky-800 font-semibold pl-2">
-              STATUS <span className="text-red-600">*</span>
+              Status <span className="text-red-600">*</span>
             </p>
             <div className="w-full flex justify-between">
               <button
@@ -435,14 +440,47 @@ export default function EditProductModal({
                 onClick={() => setStatus("CANCELED")}
                 className={`grow border border-l-0 py-2 duration-200 ${
                   status === "CANCELED"
+                    ? "bg-pink-700 text-white font-semibold"
+                    : "hover:bg-pink-600 hover:text-white text-gray-400"
+                }`}
+              >
+                CANCELED
+              </button>
+              <button
+                onClick={() => setStatus("REMOVED")}
+                className={`grow border border-l-0 py-2 duration-200 ${
+                  status === "REMOVED"
                     ? "bg-red-600 text-white font-semibold"
                     : "hover:bg-red-500 hover:text-white text-gray-400"
                 } rounded-r-lg`}
               >
-                CANCELED
+                REMOVED
               </button>
             </div>
           </div>
+
+          <div
+            className={`flex flex-col items-start justify-start gap-1 ${
+              status !== "CANCELED" && "hidden"
+            }`}
+          >
+            <p className="text-[0.7em] text-sky-800 font-semibold pl-2">
+              Reason to cancel <span className="text-red-600">*</span>
+            </p>
+            <Input.TextArea
+              autoSize={{
+                minRows: 2,
+                maxRows: 6,
+              }}
+              placeholder="Enter..."
+              spellCheck={false}
+              maxLength={1000}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              className={`w-[35em] border p-2 font-montserrat rounded-xl disabled:border-none disabled:bg-white ${montserrat.className}`}
+            />
+          </div>
+
           <div className="flex flex-col items-start justify-start gap-1">
             <p className="text-[0.7em] text-sky-800 font-semibold pl-2">
               Name <span className="text-red-600">*</span>
@@ -497,7 +535,7 @@ export default function EditProductModal({
                   parseFloat(e.target.value) > 0 &&
                   parseFloat(e.target.value) < 100000
                 )
-                  setPrice(Math.round(parseFloat(e.target.value) * 100) / 100);
+                  setPrice(parseFloat(e.target.value));
               }}
               className="w-[10em] border border-gray-300 p-2 rounded-xl disabled:border-none disabled:bg-white"
             />

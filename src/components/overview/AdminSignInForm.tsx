@@ -28,31 +28,42 @@ export default function AdminSignInForm({ modalOpen }: { modalOpen: boolean }) {
       })
       .then(async (res) => {
         const account = jwtDecode(res.data.metadata) as any;
-        await axios
-          .patch(`http://localhost:3000/auth/active_status/${account.id}`)
-          .catch((err) => console.log(err));
-        setTimeout(() => {
-          if (account.role === "admin") {        
-            sessionStorage.setItem("adminSignIn", JSON.stringify(account));
-            window.location.reload(); 
-          } else if (account.role === "appraiser") {
-            sessionStorage.setItem("appraiserSignIn", JSON.stringify(account));
-            window.location.href = "/user/appraisers"; 
-          } else {
-            message.open({
-              type: "error",
-              content: "Incorrect credentials. Please try again!",
-              duration: 5,
-            });
-          }
-          setIsLoading(false);
-        }, 2000);
+        if (!account.status) {
+          message.error({
+            key: "error",
+            content: "This account is deactivated. Please try using another!",
+            duration: 5,
+          });
+        } else {
+          await axios
+            .patch(`http://localhost:3000/auth/active_status/${account.id}`)
+            .catch((err) => console.log(err));
+          setTimeout(() => {
+            if (account.role === "admin") {
+              sessionStorage.setItem("adminSignIn", JSON.stringify(account));
+              window.location.reload();
+            } else if (account.role === "appraiser") {
+              sessionStorage.setItem(
+                "appraiserSignIn",
+                JSON.stringify(account)
+              );
+              window.location.href = "/user/appraisers";
+            } else {
+              message.error({
+                key: "error",
+                content: "Incorrect credentials. Please try again!",
+                duration: 5,
+              });
+            }
+            setIsLoading(false);
+          }, 2000);
+        }
       })
       .catch((err) => {
         console.log(err);
         setTimeout(() => {
-          message.open({
-            type: "error",
+          message.error({
+            key: "error",
             content: "Incorrect credentials. Please try again!",
             duration: 5,
           });
@@ -73,7 +84,7 @@ export default function AdminSignInForm({ modalOpen }: { modalOpen: boolean }) {
     >
       {contextHolder}
       <p className="w-full text-center text-[200%] font-bold">
-        ADMINISTRATOR SIGN IN
+        SIGN IN
       </p>
       <Input
         size="large"

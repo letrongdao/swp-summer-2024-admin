@@ -8,7 +8,6 @@ import ProductInformation from "../timepieces/ProductInformation";
 import dateFormat from "@/assistants/date.format";
 import AppraisalConfirm from "../modals/AppraisalConfirm";
 
-
 export default function AppraiserRequestListTable({
   list,
   getUpdatedStatus,
@@ -428,8 +427,6 @@ export default function AppraiserRequestListTable({
           striped
           highlightOnHover
           pointerOnHover
-          selectableRows
-          selectableRowDisabled={(row: any) => row.status !== "pending"}
           onSelectedRowsChange={handleChange}
           progressPending={isLoading}
           pagination

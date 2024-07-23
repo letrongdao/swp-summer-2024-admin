@@ -8,6 +8,7 @@ import ProductInformation from "../timepieces/ProductInformation";
 import CurrencySplitter from "@/assistants/currencySpliter";
 import ConfirmModal from "../modals/ConfirmModal";
 import dateFormat from "@/assistants/date.format";
+import NoteModal from "./NoteModal";
 
 export default function SellerRequestListTable({
   list,
@@ -19,6 +20,7 @@ export default function SellerRequestListTable({
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
   const [isShowingProductDetails, setIsShowingProductDetails] = useState("");
+  const [isViewingNote, setIsViewingNote] = useState("");
   const [isApprovingOne, setIsApprovingOne] = useState("");
   const [isRejectingOne, setIsRejectingOne] = useState("");
   const [isApprovingAll, setIsApprovingAll] = useState(false);
@@ -126,7 +128,6 @@ export default function SellerRequestListTable({
           </div>
         );
       },
-      sortable: true,
       grow: 1,
     },
     {
@@ -159,7 +160,6 @@ export default function SellerRequestListTable({
           </>
         );
       },
-      sortable: true,
       grow: 2,
     },
     {
@@ -169,7 +169,9 @@ export default function SellerRequestListTable({
         </p>
       ),
       cell: (row: any) => (
-        <p className="">{dateFormat(row.createdAt, "HH:MM dd/mm/yyyy")}</p>
+        <p className="">
+          {dateFormat(new Date(row.createdAt), "HH:MM dd/mm/yyyy")}
+        </p>
       ),
       sortable: true,
       sortFunction: (a: any, b: any) => {
@@ -230,7 +232,21 @@ export default function SellerRequestListTable({
             if (Object.hasOwn(row.update, "price"))
               return (
                 <div className="font-semibold text-sky-500">
-                  <p className="pb-2">{row.details}</p>
+                  <p className="pb-2">
+                    {row.details}
+                    <br />
+                    <button
+                      onClick={() => setIsViewingNote(row.id)}
+                      className="underline font-medium"
+                    >
+                      View reason
+                    </button>
+                  </p>
+                  <NoteModal
+                    open={isViewingNote === row.id}
+                    setOpen={setIsViewingNote}
+                    note={row.note}
+                  />
                 </div>
               );
             else
@@ -263,37 +279,37 @@ export default function SellerRequestListTable({
               ACTION MADE AT {dateFormat(row.updatedAt, "HH:MM dd/mm/yyyy")}
             </p>
           );
-        // else
-        //   return (
-        //     <div className="w-full flex flex-row gap-2 items-center justify-center">
-        //       <button
-        //         onClick={() => setIsApprovingOne(row.id)}
-        //         className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-800 text-white font-semibold text-nowrap"
-        //       >
-        //         Approve
-        //       </button>
-        //       <button
-        //         onClick={() => setIsRejectingOne(row.id)}
-        //         className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-800 text-white font-semibold text-nowrap"
-        //       >
-        //         Reject
-        //       </button>
-        //       <ConfirmModal
-        //         action="approve"
-        //         object={row}
-        //         open={isApprovingOne === row.id}
-        //         setOpen={setIsApprovingOne}
-        //         getConfirm={handleSolveRequest}
-        //       />
-        //       <ConfirmModal
-        //         action="reject"
-        //         object={row}
-        //         open={isRejectingOne === row.id}
-        //         setOpen={setIsRejectingOne}
-        //         getConfirm={handleSolveRequest}
-        //       />
-        //     </div>
-        //   );
+        else
+          return (
+            <div className="w-full flex flex-row gap-2 items-center justify-center">
+              <button
+                onClick={() => setIsApprovingOne(row.id)}
+                className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-800 text-white font-semibold text-nowrap"
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => setIsRejectingOne(row.id)}
+                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-800 text-white font-semibold text-nowrap"
+              >
+                Reject
+              </button>
+              <ConfirmModal
+                action="approve"
+                object={row}
+                open={isApprovingOne === row.id}
+                setOpen={setIsApprovingOne}
+                getConfirm={handleSolveRequest}
+              />
+              <ConfirmModal
+                action="reject"
+                object={row}
+                open={isRejectingOne === row.id}
+                setOpen={setIsRejectingOne}
+                getConfirm={handleSolveRequest}
+              />
+            </div>
+          );
       },
       grow: 1,
     },
@@ -319,13 +335,13 @@ export default function SellerRequestListTable({
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsRejectingAll(true)}
-                  className="px-8 py-2 rounded-xl bg-red-600 hover:bg-red-800 text-white font-semibold text-nowrap"
+                  className="px-8 py-2 rounded-xl bg-red-600 hover:bg-red-800 duration-200 text-white font-semibold text-nowrap"
                 >
                   Reject all selected
                 </button>
                 <button
                   onClick={() => setIsApprovingAll(true)}
-                  className="px-8 py-2 rounded-xl bg-green-600 hover:bg-green-800 text-white font-semibold text-nowrap"
+                  className="px-8 py-2 rounded-xl bg-green-600 hover:bg-green-800 duration-200 text-white font-semibold text-nowrap"
                 >
                   Approve all selected
                 </button>
