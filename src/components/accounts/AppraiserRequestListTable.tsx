@@ -19,23 +19,21 @@ export default function AppraiserRequestListTable({
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
   const [isShowingProductDetails, setIsShowingProductDetails] = useState("");
+  const [isApprovingOne, setIsApprovingOne] = useState("");
   const [isRejectingOne, setIsRejectingOne] = useState("");
   const [isApprovingAll, setIsApprovingAll] = useState(false);
   const [isRejectingAll, setIsRejectingAll] = useState(false);
   const [sellerRequestList, setSellerRequestList] = useState(list);
-  const [isScheduleOne, setIsScheduleOne] = useState("");
 
   const solveRequest = async (
     request: any,
     type: string,
-    newPrice?: number,
     note?: string,
-    schedule?: Date
   ) => {
     if (type === "reject") {
       await axios
         .patch(`http://localhost:3000/product/${request.product.id}`, {
-          status: request.type === "create" ? "CANCELED" : "AVAILABLE",
+          status:  "CANCELED",
         })
         .then((res) => {
           return;
@@ -56,8 +54,7 @@ export default function AppraiserRequestListTable({
         })
         .catch((err) => console.log(err));
     } else {
-      switch (request.type) {
-        case "create": {
+     
           await axios
             .patch(`http://localhost:3000/product/${request.product.id}`, {
               status: "AVAILABLE",
@@ -66,68 +63,19 @@ export default function AppraiserRequestListTable({
               return;
             })
             .catch((err) => console.log(err));
-          break;
-        }
-        case "delete": {
-          await axios
-            .patch(`http://localhost:3000/product/${request.product.id}`, {
-              status: "CANCELED",
-            })
-            .then((res) => {
-              return;
-            })
-            .catch((err) => console.log(err));
-          break;
-        }
-        case "update": {
-          await axios
-            .patch(
-              `http://localhost:3000/product/${request.product.id}`,
-              Object.hasOwn(request.update, "price")
-                ? { price: request.update.price, status: "AVAILABLE" }
-                : { status: "SOLD" }
-            )
-            .then((res) => {
-              return;
-            })
-            .catch((err) => console.log(err));
-          break;
-        }
-      }
-      // await axios
-      //   .patch(`http://localhost:3000/sellerRequest/${request.id}`, {
-      //     status: "approved",
-      //   })
-      //   .then((res) => {
-      //     message.success({
-      //       key: "solved",
-      //       content: "Successfully approved request.",
-      //       duration: 5,
-      //     });
-      //     getUpdatedStatus(true);
-      //   })
-      //   .catch((err) => console.log(err));
-      if (type == "schedule"){
-        try{
-          await axios.post(`http://localhost:3000/appointments`,{
-            requestId:request.id,
-            productId: request.product.id,
-            scheduleDate: schedule,
-          });
-          await axios.patch(`http://localhost:3000/sellerRequest/${request.id}`,{
-            status: "schedule",
-          });
+      await axios
+        .patch(`http://localhost:3000/sellerRequest/${request.id}`, {
+          status: "approved",
+        })
+        .then((res) => {
           message.success({
-            key: "schedule",
-            content: "Successfully schedule an appointment.",
+            key: "solved",
+            content: "Successfully approved request.",
             duration: 5,
           });
           getUpdatedStatus(true);
-        }catch(err){
-          console.error(err);
-          message.error("Failed to schedule appointment");
-        }
-      }
+        })
+        .catch((err) => console.log(err));
     }
     await fetchUpdatedData();
     getUpdatedStatus(true);
@@ -135,22 +83,13 @@ export default function AppraiserRequestListTable({
 
   const handleSolveRequest = async (value: any) => {
     console.log("Solve request: ", value);
-    if (value.action === "schedule") {
-      await solveRequest(
-        value.object,
-        value.action,
-        undefined,
-        undefined,
-        value.scheduleDate
-      );
-    }
-    else if (Array.isArray(value.object)) {
+    if (Array.isArray(value.object)) {
       await Promise.all(
         value.object.map(async (item: any) => {
           await solveRequest(
             item,
             value.action,
-            value.newPrice,
+            
             value.rejectNote
           );
         })
@@ -159,8 +98,7 @@ export default function AppraiserRequestListTable({
       await solveRequest(
         value.object,
         value.action,
-        value.newPrice,
-        value.rejectNote
+       value.rejectNote
       );
     }
     setTimeout(() => {
@@ -284,47 +222,8 @@ export default function AppraiserRequestListTable({
       },
       grow: 1,
     },
-    // {
-    //   name: (
-    //     <p className="w-full text-center font-semibold text-tremor-default">
-    //       Request details
-    //     </p>
-    //   ),
-    //   cell: (row: any) => {
-    //     switch (row.type) {
-    //       case "create": {
-    //         return (
-    //           <div className="mx-auto font-semibold text-green-500">
-    //             {row.details && ""}
-    //           </div>
-    //         );
-    //       }
-    //       case "update": {
-    //         if (Object.hasOwn(row.update, "price"))
-    //           return (
-    //             <div className="mx-auto font-semibold text-sky-500">
-    //               <p className="pb-2">{row.details}</p>
-    //             </div>
-    //           );
-    //         else
-    //           return (
-    //             <div className="mx-auto font-semibold text-amber-500">
-    //               {row.details}
-    //             </div>
-    //           );
-    //       }
-    //       case "delete": {
-    //         return (
-    //           <div className="mx-auto font-semibold text-red-500">
-    //             {row.details}
-    //           </div>
-    //         );
-    //       }
-    //     }
-    //   },
-    //   sortable: true,
-    //   grow: 1,
-    // },
+
+    
     {
       name: (
         <p className="w-full text-center font-semibold text-tremor-default">
@@ -342,10 +241,10 @@ export default function AppraiserRequestListTable({
           return (
             <div className="w-full flex flex-row gap-2 items-center justify-center">
               <button
-                onClick={() => setIsScheduleOne(row.id)}
+                onClick={() => setIsApprovingOne(row.id)}
                 className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-800 text-white font-semibold text-nowrap"
               >
-                Schedule
+                Approve
               </button>
               <button
                 onClick={() => setIsRejectingOne(row.id)}
@@ -354,12 +253,12 @@ export default function AppraiserRequestListTable({
                 Reject
               </button>
               <AppraisalConfirm
-                action="schedule"
+                action="approve"
                 object={row}
-                open={isScheduleOne === row.id}
-                setOpen={setIsScheduleOne}
+                open={isApprovingOne === row.id}
+                setOpen={setIsApprovingOne}
                 getConfirm={handleSolveRequest}
-                onClose={false}
+               
               />
               <AppraisalConfirm
                 action="reject"
@@ -367,7 +266,7 @@ export default function AppraiserRequestListTable({
                 open={isRejectingOne === row.id}
                 setOpen={setIsRejectingOne}
                 getConfirm={handleSolveRequest}
-                onClose={false}
+               
               />
             </div>
           );
@@ -407,12 +306,12 @@ export default function AppraiserRequestListTable({
                   Approve all selected
                 </button>
                 <AppraisalConfirm
-                  action="schedule"
+                  action="approve"
                   object={selectedRows}
-                  open={isApprovingAll}///dang sua o day
+                  open={isApprovingAll}
                   setOpen={setIsApprovingAll}
                   getConfirm={handleSolveRequest}
-                  onClose={false}
+                  
                 />
                 <AppraisalConfirm
                   action="reject"
@@ -420,7 +319,7 @@ export default function AppraiserRequestListTable({
                   open={isRejectingAll}
                   setOpen={setIsRejectingAll}
                   getConfirm={handleSolveRequest}
-                  onClose={false}
+                  
                 />
               </div>
             </>
