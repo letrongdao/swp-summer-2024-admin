@@ -9,7 +9,6 @@ export default function AppraisalConfirm({
   open,
   setOpen,
   getConfirm,
-  onClose,
 }: {
   action?: string;
   object: any | any[];
@@ -52,7 +51,7 @@ console.log(appointmentDayjs);
     setNote("");
   };
 
-  const status = action?.match("schedule appointment");
+  const status = action?.match("schedule");
 
   function converDayjs(appointmentTime: moment.Moment): import("dayjs").Dayjs | null | undefined {
     if (!appointmentTime) return null;

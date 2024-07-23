@@ -19,12 +19,11 @@ export default function AppraiserRequestListTable({
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
   const [isShowingProductDetails, setIsShowingProductDetails] = useState("");
-  const [isApprovingOne, setIsApprovingOne] = useState("");
   const [isRejectingOne, setIsRejectingOne] = useState("");
   const [isApprovingAll, setIsApprovingAll] = useState(false);
   const [isRejectingAll, setIsRejectingAll] = useState(false);
   const [sellerRequestList, setSellerRequestList] = useState(list);
-  const [schedule, setSchedule] = useState("");
+  const [isScheduleOne, setIsScheduleOne] = useState("");
 
   const solveRequest = async (
     request: any,
@@ -95,29 +94,39 @@ export default function AppraiserRequestListTable({
           break;
         }
       }
-      await axios
-        .patch(`http://localhost:3000/sellerRequest/${request.id}`, {
-          status: "approved",
-        })
-        .then((res) => {
+      // await axios
+      //   .patch(`http://localhost:3000/sellerRequest/${request.id}`, {
+      //     status: "approved",
+      //   })
+      //   .then((res) => {
+      //     message.success({
+      //       key: "solved",
+      //       content: "Successfully approved request.",
+      //       duration: 5,
+      //     });
+      //     getUpdatedStatus(true);
+      //   })
+      //   .catch((err) => console.log(err));
+      if (type == "schedule"){
+        try{
+          await axios.post(`http://localhost:3000/appointments`,{
+            requestId:request.id,
+            productId: request.product.id,
+            scheduleDate: schedule,
+          });
+          await axios.patch(`http://localhost:3000/sellerRequest/${request.id}`,{
+            status: "schedule",
+          });
           message.success({
-            key: "solved",
-            content: "Successfully approved request.",
+            key: "schedule",
+            content: "Successfully schedule an appointment.",
             duration: 5,
           });
           getUpdatedStatus(true);
-        })
-        .catch((err) => console.log(err));
-      if (newPrice) {
-        await axios
-          .patch(`http://localhost:3000/product/${request.product.id}`, {
-            price: newPrice,
-            status: "AVAILABLE",
-          })
-          .then((res) => {
-            return;
-          })
-          .catch((err) => console.log(err));
+        }catch(err){
+          console.error(err);
+          message.error("Failed to schedule appointment");
+        }
       }
     }
     await fetchUpdatedData();
@@ -126,7 +135,16 @@ export default function AppraiserRequestListTable({
 
   const handleSolveRequest = async (value: any) => {
     console.log("Solve request: ", value);
-    if (Array.isArray(value.object)) {
+    if (value.action === "schedule") {
+      await solveRequest(
+        value.object,
+        value.action,
+        undefined,
+        undefined,
+        value.scheduleDate
+      );
+    }
+    else if (Array.isArray(value.object)) {
       await Promise.all(
         value.object.map(async (item: any) => {
           await solveRequest(
@@ -324,7 +342,7 @@ export default function AppraiserRequestListTable({
           return (
             <div className="w-full flex flex-row gap-2 items-center justify-center">
               <button
-                onClick={() => setIsApprovingOne(row.id)}
+                onClick={() => setIsScheduleOne(row.id)}
                 className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-800 text-white font-semibold text-nowrap"
               >
                 Schedule
@@ -336,10 +354,10 @@ export default function AppraiserRequestListTable({
                 Reject
               </button>
               <AppraisalConfirm
-                action="schedule appointment"
+                action="schedule"
                 object={row}
-                open={isApprovingOne === row.id}
-                setOpen={setIsApprovingOne}
+                open={isScheduleOne === row.id}
+                setOpen={setIsScheduleOne}
                 getConfirm={handleSolveRequest}
                 onClose={false}
               />
@@ -389,9 +407,9 @@ export default function AppraiserRequestListTable({
                   Approve all selected
                 </button>
                 <AppraisalConfirm
-                  action="schedule appointment"
+                  action="schedule"
                   object={selectedRows}
-                  open={isApprovingAll}
+                  open={isApprovingAll}///dang sua o day
                   setOpen={setIsApprovingAll}
                   getConfirm={handleSolveRequest}
                   onClose={false}
